@@ -59,8 +59,8 @@ public class BlockedContactsActivity extends ListActivity {
     static final int AVATAR_COLUMN = 5;
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_LEFT_ICON);
 

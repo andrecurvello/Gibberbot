@@ -54,8 +54,8 @@ public class ContactsPickerActivity extends ListActivity {
     }
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         setContentView(R.layout.contacts_picker_activity);
         if (!resolveIntent()) {

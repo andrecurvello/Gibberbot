@@ -67,34 +67,24 @@ public class SigningInActivity extends Activity {
     private long mProviderId;
     private long mAccountId;
     private String mProviderName;
-
     private String mToAddress;
-
     private boolean isActive;
-
+    
     protected static final int ID_CANCEL_SIGNIN = Menu.FIRST + 1;
-
-    //private Dialog dl = null;
-
     private Uri accountData = null;
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
         setContentView(R.layout.signing_in_activity);
-
     }
 
     @Override
     protected void onResume() {
-
         super.onResume();
-
         Intent intent = getIntent();
         mToAddress = intent.getStringExtra(ImApp.EXTRA_INTENT_SEND_TO_USER);
-
         accountData = intent.getData();
         if (accountData == null) {
             if (Log.isLoggable(ImApp.LOG_TAG, Log.DEBUG)) {
@@ -370,11 +360,6 @@ public class SigningInActivity extends Activity {
 
     void handleConnectionEvent(int state, ImErrorInfo error) {
 
-        /*
-        if (isFinishing()) {
-            return;
-        }*/
-
         if (state == ImConnection.LOGGED_IN) {
 
             try {
@@ -450,9 +435,7 @@ public class SigningInActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-
             cancelSignIn();
-
         }
         return super.onKeyDown(keyCode, event);
     }

@@ -38,8 +38,8 @@ public class SignoutActivity extends Activity {
     private Handler mHandler = new Handler();
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
         Uri data = intent.getData();

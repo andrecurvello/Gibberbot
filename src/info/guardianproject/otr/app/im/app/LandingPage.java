@@ -92,8 +92,8 @@ public class LandingPage extends ListActivity implements View.OnCreateContextMen
     static final int ACCOUNT_CONNECTION_STATUS = 10;
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         setTitle(R.string.landing_page_title);
 

@@ -25,8 +25,8 @@ import android.os.Bundle;
 
 public class ChooseAccountActivity extends Activity {
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setType(Imps.Provider.CONTENT_TYPE);

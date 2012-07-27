@@ -73,8 +73,8 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
     ContextMenuHandler mContextMenuHandler;
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 

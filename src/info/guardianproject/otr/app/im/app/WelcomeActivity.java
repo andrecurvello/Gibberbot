@@ -46,7 +46,7 @@ public class WelcomeActivity extends Activity {
     
     private static final String TAG = "WelcomeActivity";
     private boolean mDidAutoLaunch = false;
-    private Cursor mProviderCursor;
+    private Cursor mCursor;
     private ImApp mApp;
     private SimpleAlertHandler mHandler;
     private String mDefaultLocale;
@@ -82,33 +82,35 @@ public class WelcomeActivity extends Activity {
         setContentView(R.layout.welcome_activity);
         Button getStarted = ((Button) findViewById(R.id.btnSplashAbout));
 
+        // "get started" button triggers the about activity (TODO more consistent naming)
         getStarted.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
-                Intent intent = new Intent(getBaseContext(), AboutActivity.class);
-                startActivity(intent);
+                Intent about = new Intent(getBaseContext(), AboutActivity.class);
+                startActivity(about);
             }
         });
 
     }
 
+    // rather unlocks the cursor (does something)
+    // than returning a property of the cursor
     private boolean cursorUnlocked() {
         try {
             mApp = ImApp.getApplication(this);
             mHandler = new MyHandler(this);
             ImPluginHelper.getInstance(this).loadAvailablePlugins();
 
-            mProviderCursor = managedQuery(Imps.Provider.CONTENT_URI_WITH_ACCOUNT,
+            mCursor = managedQuery(Imps.Provider.CONTENT_URI_WITH_ACCOUNT,
                     PROVIDER_PROJECTION, Imps.Provider.CATEGORY + "=?" /* selection */,
                     new String[] { ImApp.IMPS_CATEGORY } /* selection args */,
                     Imps.Provider.DEFAULT_SORT_ORDER);
 
-            mProviderCursor.moveToFirst();
-
+            mCursor.moveToFirst();
             return true;
-
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             Log.e(ImApp.LOG_TAG, e.getMessage(), e);
             // needs to be unlocked
             return false;
@@ -125,10 +127,8 @@ public class WelcomeActivity extends Activity {
 
     @Override
     protected void onPause() {
-
         if (mHandler != null)
             mHandler.unregisterForBroadcastEvents();
-
         super.onPause();
     }
 
@@ -140,26 +140,24 @@ public class WelcomeActivity extends Activity {
             showLocaleDialog();
         else {
             cursorUnlocked();
-            doOnResume();
+            resumeAccounts();
         }
     }
 
-    private void doOnResume() {
+    private void resumeAccounts() {
 
         if (mApp == null) {
             mApp = ImApp.getApplication(this);
             mHandler = new MyHandler(this);
             ImPluginHelper.getInstance(this).loadAvailablePlugins();
         }
-
-        mHandler.registerForBroadcastEvents();
-
+        if (mHandler != null)
+            mHandler.registerForBroadcastEvents();
         int count = accountsSignedIn();
-
         if (count == 0) {
             if (!mDidAutoLaunch) {
                 mDidAutoLaunch = true;
-                signInAll();
+                signInAllAccounts();
             }
         } else if (count == 1) {
             showActiveAccount();
@@ -170,11 +168,11 @@ public class WelcomeActivity extends Activity {
 
     // Show signed in account
     protected boolean showActiveAccount() {
-        if (!mProviderCursor.moveToFirst())
+        if (!mCursor.moveToFirst())
             return false;
         do {
-            if (!mProviderCursor.isNull(ACTIVE_ACCOUNT_ID_COLUMN) && isSignedIn(mProviderCursor)) {
-                long accountId = mProviderCursor.getLong(ACTIVE_ACCOUNT_ID_COLUMN);
+            if (!mCursor.isNull(ACTIVE_ACCOUNT_ID_COLUMN) && isSignedIn(mCursor)) {
+                long accountId = mCursor.getLong(ACTIVE_ACCOUNT_ID_COLUMN);
 
                 Intent intent = new Intent(this, TabbedContainer.class);
                 // clear the back stack of the account setup
@@ -184,16 +182,14 @@ public class WelcomeActivity extends Activity {
                 finish();
                 return true;
             }
-        } while (mProviderCursor.moveToNext());
+        } while (mCursor.moveToNext());
         return false;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_list_menu, menu);
-
         return true;
     }
 
@@ -217,40 +213,34 @@ public class WelcomeActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void signInAll() {
-
+    private void signInAllAccounts() {
         Log.i(TAG, "signInAll");
-        if (!mProviderCursor.moveToFirst())
+        if (!mCursor.moveToFirst())
             return;
-
         do {
-            int position = mProviderCursor.getPosition();
-            signInAccountAtPosition(position);
-
-        } while (mProviderCursor.moveToNext());
-
+            int position = mCursor.getPosition();
+            signInAccount(position);
+        } while (mCursor.moveToNext());
     }
 
-    private boolean signInAccountAtPosition(int position) {
-        mProviderCursor.moveToPosition(position);
+    private boolean signInAccount(int position) {
+        mCursor.moveToPosition(position);
 
-        if (!mProviderCursor.isNull(ACTIVE_ACCOUNT_ID_COLUMN)) {
-            int state = mProviderCursor.getInt(ACCOUNT_CONNECTION_STATUS);
-            long accountId = mProviderCursor.getLong(ACTIVE_ACCOUNT_ID_COLUMN);
+        if (!mCursor.isNull(ACTIVE_ACCOUNT_ID_COLUMN)) {
+            int state = mCursor.getInt(ACCOUNT_CONNECTION_STATUS);
+            long accountId = mCursor.getLong(ACTIVE_ACCOUNT_ID_COLUMN);
 
             if (state == Imps.ConnectionStatus.OFFLINE) {
-                boolean isKeepSignedIn = mProviderCursor.getInt(ACTIVE_ACCOUNT_KEEP_SIGNED_IN) != 0;
+                boolean isKeepSignedIn = mCursor.getInt(ACTIVE_ACCOUNT_KEEP_SIGNED_IN) != 0;
                 if (isKeepSignedIn) {
                     signIn(accountId);
                     return true;
                 }
-
             } else if (state == Imps.ConnectionStatus.CONNECTING) {
                 signIn(accountId);
                 return true;
             }
         }
-
         return false;
     }
 
@@ -259,23 +249,21 @@ public class WelcomeActivity extends Activity {
             Log.w(TAG, "signIn: account id is 0, bail");
             return;
         }
-
-        boolean isAccountEditible = mProviderCursor.getInt(ACTIVE_ACCOUNT_LOCKED) == 0;
-        if (isAccountEditible && mProviderCursor.isNull(ACTIVE_ACCOUNT_PW_COLUMN)) {
+        boolean isAccountEditible = mCursor.getInt(ACTIVE_ACCOUNT_LOCKED) == 0;
+        if (isAccountEditible && mCursor.isNull(ACTIVE_ACCOUNT_PW_COLUMN)) {
             // no password, edit the account
             if (Log.isLoggable(TAG, Log.DEBUG))
                 Log.i(TAG, "no pw for account " + accountId);
-            Intent intent = getEditAccountIntent();
-            startActivity(intent);
+            Intent editAccount = getEditAccountIntent();
+            startActivity(editAccount);
             finish();
             return;
         }
-
         Intent signIn = new Intent(this, SigningInActivity.class);
         signIn.setData(ContentUris.withAppendedId(Imps.Account.CONTENT_URI, accountId));
         startActivity(signIn);
-
         finish();
+        return;
     }
 
     boolean isSigningIn(Cursor cursor) {
@@ -285,33 +273,22 @@ public class WelcomeActivity extends Activity {
 
     private boolean isSignedIn(Cursor cursor) {
         int connectionStatus = cursor.getInt(ACCOUNT_CONNECTION_STATUS);
-
         return connectionStatus == Imps.ConnectionStatus.ONLINE;
     }
 
     private int accountsSignedIn() {
-        if (!mProviderCursor.moveToFirst()) {
+        if (!mCursor.moveToFirst()) {
             return 0;
         }
         int count = 0;
         do {
-            if (isSignedIn(mProviderCursor)) {
+            if (isSignedIn(mCursor)) {
                 count++;
             }
-        } while (mProviderCursor.moveToNext());
-
+        } while (mCursor.moveToNext());
         return count;
     }
 
-    //    private void showAccountSetup() {
-    //        if (!mProviderCursor.moveToFirst() || mProviderCursor.isNull(ACTIVE_ACCOUNT_ID_COLUMN)) {
-    //            // add account
-    //            startActivity(getCreateAccountIntent());
-    //        } else {
-    //            // edit existing account
-    //            startActivity(getEditAccountIntent());
-    //        }
-    //    }
 
     private void showAbout() {
         //TODO implement this about form
@@ -356,22 +333,22 @@ public class WelcomeActivity extends Activity {
         finish();
     }
 
-    Intent getCreateAccountIntent() {
-        Intent intent = new Intent(getBaseContext(), AccountActivity.class);
-        intent.setAction(Intent.ACTION_INSERT);
-
-        // TODO fix for multiple account support
-        long providerId = 1; // XMPP
-        intent.setData(ContentUris.withAppendedId(Imps.Provider.CONTENT_URI, providerId));
-        //TODO we probably need the ProviderCategory in the createAccountIntent, but currently it FC's on account creation
-        return intent;
-    }
+//    Intent getCreateAccountIntent() {
+//        Intent intent = new Intent(getBaseContext(), AccountActivity.class);
+//        intent.setAction(Intent.ACTION_INSERT);
+//
+//        // TODO fix for multiple account support
+//        long providerId = 1; // XMPP
+//        intent.setData(ContentUris.withAppendedId(Imps.Provider.CONTENT_URI, providerId));
+//        //TODO we probably need the ProviderCategory in the createAccountIntent, but currently it FC's on account creation
+//        return intent;
+//    }
 
     Intent getEditAccountIntent() {
         Intent intent = new Intent(Intent.ACTION_EDIT, ContentUris.withAppendedId(
-                Imps.Account.CONTENT_URI, mProviderCursor.getLong(ACTIVE_ACCOUNT_ID_COLUMN)));
-        intent.putExtra("isSignedIn", isSignedIn(mProviderCursor));
-        intent.addCategory(getProviderCategory(mProviderCursor));
+                Imps.Account.CONTENT_URI, mCursor.getLong(ACTIVE_ACCOUNT_ID_COLUMN)));
+        intent.putExtra("isSignedIn", isSignedIn(mCursor));
+        intent.addCategory(getProviderCategory(mCursor));
         return intent;
     }
 

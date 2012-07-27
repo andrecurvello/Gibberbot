@@ -94,7 +94,6 @@ public class ContactView extends LinearLayout {
     }
 
     public void bind(Cursor cursor, String underLineText, boolean showChatMsg, boolean scrolling) {
-        Resources r = getResources();
         long providerId = cursor.getLong(COLUMN_CONTACT_PROVIDER);
         String username = cursor.getString(COLUMN_CONTACT_USERNAME);
         String nickname = cursor.getString(COLUMN_CONTACT_NICKNAME);
@@ -175,9 +174,6 @@ public class ContactView extends LinearLayout {
                 // Show the custom status text if there's no new message.
                 status = statusText;
             }
-        }
-
-        if (TextUtils.isEmpty(status)) {
             // Show a string of presence if there is neither new message nor
             // custom status text.
             status = brandingRes.getString(PresenceUtils.getStatusStringRes(presence));
@@ -185,7 +181,11 @@ public class ContactView extends LinearLayout {
 
         mLine2.setText(status);
         mLine2.setCompoundDrawablesWithIntrinsicBounds(null, null, presenceIcon, null);
-
+        setBubble(hasChat, showChatMsg);
+    }
+    
+    private void setBubble(boolean hasChat, boolean showChatMsg) {
+        Resources r = getResources();
         View contactInfoPanel = findViewById(R.id.contactInfo);
         if (hasChat && showChatMsg) { // HERE the bubble is set
             contactInfoPanel.setBackgroundResource(R.drawable.bubble);

@@ -90,8 +90,9 @@ public class ActiveChatListView extends LinearLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mPresenceView = (UserPresenceView) findViewById(R.id.userPresence);
-        mChatList = (ListView) findViewById(R.id.chatsList);
+        mChatList = new ListView(mContext);//(ListView) findViewById(R.id.chatsList);
         mChatList.setOnItemClickListener(mOnClickListener);
+        Log.e("HELLOO", "We use this ActiveChatListView");
     }
 
     public ListView getListView() {

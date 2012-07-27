@@ -72,8 +72,8 @@ public class ContactPresenceActivity extends Activity {
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         setContentView(R.layout.contact_presence_activity);
 

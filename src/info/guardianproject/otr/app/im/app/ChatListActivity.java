@@ -77,8 +77,8 @@ public class ChatListActivity extends Activity implements View.OnCreateContextMe
     boolean mDestroyed;
 
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
 
