@@ -52,6 +52,7 @@ import android.widget.Toast;
 
 public class ChatListActivity extends Activity implements View.OnCreateContextMenuListener {
 
+    // TODO how do we get here? I never saw the menuitem to block a contact..
     private static final int MENU_START_CONVERSATION = Menu.FIRST;
     private static final int MENU_VIEW_PROFILE = Menu.FIRST + 1;
     private static final int MENU_BLOCK_CONTACT = Menu.FIRST + 2;
