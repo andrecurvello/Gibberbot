@@ -66,7 +66,7 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
     SimpleAlertHandler mHandler;
     MenuItem menuOtr;
 
-    private ChatSwitcher mChatSwitcher;
+//    private ChatSwitcher mChatSwitcher;
     private LayoutInflater mInflater;
 
     ContextMenuHandler mContextMenuHandler;
@@ -82,7 +82,7 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
         mHandler = mChatView.getHandler();
         mInflater = LayoutInflater.from(this);
         mApp = ImApp.getApplication(this);
-        mChatSwitcher = new ChatSwitcher(this, mHandler, mApp, mInflater, null);
+//        mChatSwitcher = new ChatSwitcher(this, mHandler, mApp, mInflater, null);
         mContextMenuHandler = new ContextMenuHandler();
         mChatView.getHistoryView().setOnCreateContextMenuListener(this);
 
@@ -114,13 +114,13 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
     void resolveIntent(Intent intent) {
         if (requireOpenDashboardOnStart(intent)) {
             long providerId = intent.getLongExtra(ImServiceConstants.EXTRA_INTENT_PROVIDER_ID, -1L);
-            final long accountId = intent.getLongExtra(ImServiceConstants.EXTRA_INTENT_ACCOUNT_ID,
-                    -1L);
+            final long accountId = intent.getLongExtra(ImServiceConstants.EXTRA_INTENT_ACCOUNT_ID, -1L);
             if (providerId == -1L || accountId == -1L) {
                 finish();
-            } else {
-                mChatSwitcher.open();
-            }
+            } 
+//            else {
+//                mChatSwitcher.open();
+//            }
             return;
         }
 
@@ -175,11 +175,11 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
             return true;
          
         case R.id.menu_switch_chats:
-            if (mChatSwitcher.isOpen()) {
-                mChatSwitcher.close();
-            } else {
-                mChatSwitcher.open();
-            }
+//            if (mChatSwitcher.isOpen()) {
+//                mChatSwitcher.close();
+//            } else {
+//                mChatSwitcher.open();
+//            }
             return true;
 
         case R.id.menu_view_accounts:
@@ -187,13 +187,13 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
             finish();
             return true;
             
-        case R.id.menu_prev_chat:
-            switchChat(-1);
-            return true;
-
-        case R.id.menu_next_chat:
-            switchChat(1);
-            return true;
+//        case R.id.menu_prev_chat:
+//            switchChat(-1);
+//            return true;
+//
+//        case R.id.menu_next_chat:
+//            switchChat(1);
+//            return true;
 
         case R.id.menu_quick_switch_0:
         case R.id.menu_quick_switch_1:
@@ -205,7 +205,7 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
         case R.id.menu_quick_switch_7:
         case R.id.menu_quick_switch_8:
         case R.id.menu_quick_switch_9:
-            mChatSwitcher.handleShortcut(item.getAlphabeticShortcut());
+//            mChatSwitcher.handleShortcut(item.getAlphabeticShortcut());
             return true;
         }
 
@@ -273,12 +273,12 @@ public class NewChatActivity extends Activity implements View.OnCreateContextMen
 
 
 
-    private void switchChat(int delta) {
-        long providerId = mChatView.getProviderId();
-        long accountId = mChatView.getAccountId();
-        String contact = mChatView.getUserName();
-        mChatSwitcher.rotateChat(delta, contact, accountId, providerId);
-    }
+//    private void switchChat(int delta) {
+//        long providerId = mChatView.getProviderId();
+//        long accountId = mChatView.getAccountId();
+//        String contact = mChatView.getUserName();
+//        mChatSwitcher.rotateChat(delta, contact, accountId, providerId);
+//    }
 
 
 
